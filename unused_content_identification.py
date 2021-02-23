@@ -49,8 +49,6 @@ def get_unused_content(days):
         filters={
             "content_usage.days_since_last_accessed": f">{days}",
             "content_usage.content_type": "dashboard,look",
-            "dashboard.deleted_date": "NULL",
-            "look.deleted_date": "NULL",
             "_dashboard_linked_looks.is_used_on_dashboard": "No" 
         },
         filter_expression="if(is_null(${dashboard.deleted_date}) = no OR is_null(${look.deleted_date}) = no,no,yes)",
@@ -135,13 +133,14 @@ def write_content_to_csv(content, output_csv_name):
         print("I/O error")
 
 def main():
-    days = 90
+    days = 30
     dashboard_keys = ["id", "title", "user_id", "folder"]
     look_keys = ["id", "title", "user_id", "folder"]
     user_keys = ["id", "first_name", "last_name", "email"]
     folder_keys = ["id", "parent_id", "name"]
     
     unused_content = get_unused_content(days)
+    print(len(unused_content))
     if unused_content:
         dashboards = sdk.all_dashboards(
             fields=", ".join(dashboard_keys))
