@@ -6,7 +6,7 @@ import sys
 import csv
 from pprint import pprint
 
-config_file = "sandbox.ini"
+config_file = "looker.ini"
 sdk = looker_sdk.init31(config_file)
 
 def get_base_url():
@@ -50,11 +50,12 @@ def get_unused_content(days):
             "content_usage.days_since_last_accessed": f">{days}",
             "content_usage.content_type": "dashboard,look",
             "dashboard.deleted_date": "NULL",
-            "look.deleted_date": "NULL"
+            "look.deleted_date": "NULL",
+            "_dashboard_linked_looks.is_used_on_dashboard": "No" 
         },
-        filter_expression="NOT(is_null(${dashboard.id}) AND is_null(${look.id}))",
+        filter_expression="if(is_null(${dashboard.deleted_date}) = no OR is_null(${look.deleted_date}) = no,no,yes)",
         sorts=["content_usage.other_total"],
-        limit=10000
+        limit=50000
     )
     unused_content = json.loads(sdk.run_inline_query(
         body=unused_query,
