@@ -49,7 +49,8 @@ def get_unused_content(days):
         filters={
             "content_usage.days_since_last_accessed": f">{days}",
             "content_usage.content_type": "dashboard,look",
-            "_dashboard_linked_looks.is_used_on_dashboard": "No" 
+            "_dashboard_linked_looks.is_used_on_dashboard": "No",
+            "look.public": "No" 
         },
         filter_expression="if(is_null(${dashboard.deleted_date}) = no OR is_null(${look.deleted_date}) = no,no,yes)",
         sorts=["content_usage.other_total"],
@@ -133,14 +134,13 @@ def write_content_to_csv(content, output_csv_name):
         print("I/O error")
 
 def main():
-    days = 30
+    days = 10
     dashboard_keys = ["id", "title", "user_id", "folder"]
     look_keys = ["id", "title", "user_id", "folder"]
     user_keys = ["id", "first_name", "last_name", "email"]
     folder_keys = ["id", "parent_id", "name"]
     
     unused_content = get_unused_content(days)
-    print(len(unused_content))
     if unused_content:
         dashboards = sdk.all_dashboards(
             fields=", ".join(dashboard_keys))
@@ -172,7 +172,7 @@ def main():
                     folder_id = folder.id
                     folder_name = folder.name
                     parent_folder_id = folder.parent_id
-                except (StopIteration, AttributeError) as e:
+                except (StopIteration, AttributeError):
                     user_id = None
                     folder = None
                     folder_id = None
@@ -189,7 +189,7 @@ def main():
                     folder_id = folder.id
                     folder_name = folder.name
                     parent_folder_id = folder.parent_id
-                except (StopIteration, AttributeError) as e:
+                except (StopIteration, AttributeError):
                     user_id = None
                     folder = None
                     folder_id = None
@@ -206,7 +206,7 @@ def main():
                 row["first_name"] = user.first_name
                 row["last_name"] = user.last_name
                 row["email"] = user.email
-            except (StopIteration, KeyError) as e:
+            except (StopIteration, KeyError):
                 row["first_name"] = None
                 row["last_name"] = None
                 row["email"] = None
@@ -232,25 +232,6 @@ def main():
         unused_dashboard_ids = [
             str(i['dashboard_id']) for i in output_data if i['dashboard_id'] is not None
         ]
-        look_models = flatten_content('look',get_look_models(unused_look_ids)) 
-        dashboard_models = flatten_content('dashboard', get_dashboard_models(unused_dashboard_ids))
-        for item in output_data:
-            if item['content_type'] == 'dashboard':
-                try:
-                    models = next(
-                        i for i in dashboard_models if item['dashboard_id'] == i['dashboard.id']
-                    )['query.models']
-                    item['models'] = ', '.join(filter(None, models))
-                except:
-                    pass
-            else:
-                try:
-                    models = next(
-                        i for i in look_models if item['look_id'] == i['look.id']
-                    )['query.models']
-                    item['models'] = ', '.join(filter(None, models))
-                except:
-                    pass
         write_content_to_csv(output_data, "unused_content.csv")
     else:
         print("No unused content.")

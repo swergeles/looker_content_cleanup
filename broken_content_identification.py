@@ -5,7 +5,7 @@ import csv
 import json
 from pprint import pprint
 
-config_file = "sandbox.ini"
+config_file = "looker.ini"
 sdk = looker_sdk.init31(config_file)
 def main():
     base_url = get_base_url()
