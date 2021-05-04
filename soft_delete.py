@@ -27,7 +27,7 @@ for look in looks_to_delete:
     soft_delete_look(look)
 
 # Provide a list of dashboard_ids to soft delete
-dashboards_to_delete = [204,197]
+dashboards_to_delete = []
 
 for dashboard in dashboards_to_delete:
     soft_delete_dashboard(dashboard)
