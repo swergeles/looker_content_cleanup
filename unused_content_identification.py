@@ -134,7 +134,7 @@ def write_content_to_csv(content, output_csv_name):
         print("I/O error")
 
 def main():
-    days = 10
+    days = 90
     dashboard_keys = ["id", "title", "user_id", "folder"]
     look_keys = ["id", "title", "user_id", "folder"]
     user_keys = ["id", "first_name", "last_name", "email"]
